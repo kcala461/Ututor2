@@ -55,6 +55,16 @@ class GrupoSchema(ma.Schema):
 user_schema = GrupoSchema()
 users_schema = GrupoSchema(many=True)
 
+
+class TutorSchema(ma.Schema):
+    class Meta:
+        # Fields to expose
+        fields = ('codigo', 'username','carrera')
+
+user2_schema = TutorSchema()
+users2_schema = TutorSchema(many=True)
+
+
 #----- Entrar en cursos -----
 @app.route("/entrarCursos",methods=["GET","POST"])
 def entrar_Cursos():
@@ -66,12 +76,28 @@ def entrar_Cursos():
         print("Entrando por el POST")
         print(request.form['id'])
 
-       # grupo = Grupos.query.filter_by("codigo":request.form['id'])
-        
-        #grupo.user.append(usuario)
-        #db.session.commit()
+        # grupo = Grupos.query.filter_by("codigo":request.form['codigo'])
+        # grupo.user.append(usuario)
+        # db.session.commit()
         
         return '200'
+
+@app.route("/entrarTutor",methods=["GET","POST"])
+def entrar_Tutor():
+    if request.method == "GET":
+        Users.user2 = Grupos
+        db.session.commit()
+        return redirect("/tutor")
+    elif request.method == "POST":
+        print("Entrando por el POST")
+        print(request.form['id'])
+
+        # grupo = Grupos.query.filter_by("codigo":request.form['codigo'])
+        # grupo.user.append(usuario)
+        # db.session.commit()
+        
+        return '200'
+
 
 
 #----- Registro del estudiante -----
@@ -129,6 +155,17 @@ def cursos():
 
     return render_template('cursos.html', g = grupos)
 
+
+@app.route("/tutor", methods=['GET','POST'])
+def tutor():
+    u = Users.query.all()
+    usuarios = []
+    for item in u:
+        usuarios.append({"codigo": item.codigo,"username" : item.username ,"carrera": item.carerra})
+
+    return render_template('tutor.html', u = usuarios)
+
+
 #----- Mostrar base -----
 @app.route("/mostrarUsers", methods=['POST','GET'])
 def mostrar_Users():
@@ -143,6 +180,14 @@ def volverInicio():
     if request.method == "POST":
         return redirect("/inicio")
     return("signup.html")
+
+
+#----- Volver a tutor -----
+@app.route("/volverTutor",methods=["GET","POST"])
+def volverTutor():
+    if request.method == "POST":
+        return redirect("/tutor")
+    return("tutor.html")
 
 #----- Volver a grupos -----
 @app.route("/volverGrupos",methods=["GET","POST"])
