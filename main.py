@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, make_response, session,escape,redirect,url_for,flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import  Table, Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship 
+from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import text
 from flask_marshmallow import Marshmallow
@@ -13,16 +13,17 @@ import os
 
 dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
 
+
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = dbdir
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
-ma = Marshmallow(app)
 
 
-association_table = Table('association', db.metadata,Column('users_id',Integer,ForeignKey('users.codigo')),Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
 
-
+association_table = db.Table('association_table',
+                          db.Column('users_id',Integer,ForeignKey('users.codigo')),
+                          db.Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
 
 #----- Tablas para la base de datos -----
 class Users(db.Model):
@@ -33,7 +34,11 @@ class Users(db.Model):
     carerra = db.Column(db.String(80),nullable =True)
     semestre = db.Column(db.String(80),nullable =True)
     tutor = db.Column(db.String(2),nullable =True)
-    grupo = relationship("Grupos",secondary=association_table,back_populates="user")
+    grupos = db.relationship("Grupos",secondary=association_table ,backref=backref('grupos', lazy="dynamic"),lazy = "dynamic")
+
+    def __str__(self):
+        return str("La persona c:" + str(self.codigo) + ", nombre: " + str(self.username) + 
+        ", grupos: " + str(self.grupos))
 
 class Grupos(db.Model):
     __tablename__ = 'grupos'
@@ -42,28 +47,13 @@ class Grupos(db.Model):
     lugar = db.Column(db.String(80),nullable =True)
     dia = db.Column(db.String(80),nullable =True)
     tutor = db.Column(db.String(80),nullable =True)
-    user = relationship("Users",secondary=association_table,back_populates="grupo")
+    userss = db.relationship("Users",secondary=association_table)
+
+    def __str__(self):
+        return str("El grupo c:" + str(self.codigo) + ", materia: " + str(self.materia) + 
+        ", users: " + str(self.userss))
+
     
- 
-
-
-class GrupoSchema(ma.Schema):
-    class Meta:
-        # Fields to expose
-        fields = ('codigo', 'materia','lugar','dia','tutor')
-
-user_schema = GrupoSchema()
-users_schema = GrupoSchema(many=True)
-
-
-class TutorSchema(ma.Schema):
-    class Meta:
-        # Fields to expose
-        fields = ('codigo', 'username','carrera')
-
-user2_schema = TutorSchema()
-users2_schema = TutorSchema(many=True)
-
 
 #----- Entrar en cursos -----
 @app.route("/entrarCursos",methods=["GET","POST"])
@@ -73,31 +63,16 @@ def entrar_Cursos():
         db.session.commit()
         return redirect("/cursos")
     elif request.method == "POST":
+        flash("Te has unido al curso!.")
         print("Entrando por el POST")
         print(request.form['id'])
-
-        # grupo = Grupos.query.filter_by("codigo":request.form['codigo'])
-        # grupo.user.append(usuario)
-        # db.session.commit()
-        
-        return '200'
-
-@app.route("/entrarTutor",methods=["GET","POST"])
-def entrar_Tutor():
-    if request.method == "GET":
-        Users.user2 = Grupos
+        #Guardar en la base de datos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        s = Grupos.query.filter_by(codigo=request.form['id']).first()
+        c = Users.query.filter_by(codigo=session["codigo"]).first()
+        c.grupos.append(s)
+        db.session.add(c)
         db.session.commit()
-        return redirect("/tutor")
-    elif request.method == "POST":
-        print("Entrando por el POST")
-        print(request.form['id'])
-
-        # grupo = Grupos.query.filter_by("codigo":request.form['codigo'])
-        # grupo.user.append(usuario)
-        # db.session.commit()
-        
         return '200'
-
 
 
 #----- Registro del estudiante -----
@@ -119,6 +94,7 @@ def login():
         user = Users.query.filter_by(codigo=request.form["codigo"]).first()
         if user and check_password_hash( user.password, request.form["password"]):
             session["codigo"] = user.codigo
+            print(session["codigo"])
             session["username"] = user.username
             session["tutor"] = user.tutor
             return redirect("/cursos")
@@ -129,7 +105,7 @@ def login():
 @app.route("/signup/curso",methods=["GET","POST"])
 def signup_curso():
     if request.method == "POST":
-        if "codigo" in session:
+        if session["codigo"] != "debes iniciar sección en 'Login'":
             if session["tutor"] == "Si":
                 new_curso = Grupos(materia=request.form["materia"],lugar=request.form["lugar"],dia=request.form["dia"],tutor=session["username"])
                 db.session.add(new_curso)
@@ -142,9 +118,6 @@ def signup_curso():
     return render_template("signup_curso.html")
 
 
-
-
-
 #----- Ingresar a pagina de cursos -----
 @app.route("/cursos", methods=['GET','POST'])
 def cursos():
@@ -155,63 +128,47 @@ def cursos():
 
     return render_template('cursos.html', g = grupos)
 
-
-@app.route("/tutor", methods=['GET','POST'])
-def tutor():
-    u = Users.query.all()
+#----- Ingresar a pagina de tutores -----
+@app.route("/tutores", methods=['GET','POST'])
+def tutores():
+    g = Users.query.all()
     usuarios = []
-    for item in u:
+    for item in g:
         usuarios.append({"codigo": item.codigo,"username" : item.username ,"carrera": item.carerra})
-
-    return render_template('tutor.html', u = usuarios)
-
-
-#----- Mostrar base -----
-@app.route("/mostrarUsers", methods=['POST','GET'])
-def mostrar_Users():
-    if request.method == "GET":
-        x = Grupos.query.all()
-        y = users_schema.dump(x)
-    return jsonify(y.data)
+    return render_template('tutor.html',g = usuarios)
 
 #----- Volver a inicio -----
 @app.route("/volverInicio",methods=["GET","POST"])
 def volverInicio():
     if request.method == "POST":
-        return redirect("/inicio")
-    return("signup.html")
-
-
-#----- Volver a tutor -----
-@app.route("/volverTutor",methods=["GET","POST"])
-def volverTutor():
-    if request.method == "POST":
-        return redirect("/tutor")
-    return("tutor.html")
+        return redirect("/")
 
 #----- Volver a grupos -----
 @app.route("/volverGrupos",methods=["GET","POST"])
 def volverGrupos():
     if request.method == "POST":
         return redirect("/cursos")
-    return("cursos.html")
 
 #----- Volver a login -----
 @app.route("/volverLogin",methods=["GET","POST"])
 def volverLogin():
     if request.method == "POST":
         return redirect("/login")
-    return("login.html")
+
+#----- Volver a tutores -----
+@app.route("/verTutores",methods=["GET","POST"])
+def verTutores():
+    if request.method == "POST":
+        return redirect("/tutores")
 
 #----- Volver a registro -----
 @app.route("/volverRegistro",methods=["GET","POST"])
 def volverRegistro():
     if request.method == "POST":
         return redirect("/signup/estudiante")
-    return("signup.html")
 
 #----- Inicio ---> Registro estudiantes ------
-@app.route("/inicio",methods=["GET","POST"])
+@app.route("/",methods=["GET","POST"])
 def inicio():
     if request.method == "POST":
         return redirect("/signup/estudiante")
@@ -227,14 +184,28 @@ def irCursos():
 #Cerrar seccion
 @app.route("/logout")
 def logout():
-    session["codigo"] = " debes iniciar sección en 'Login'"
+    session["codigo"] = "debes iniciar sección en 'Login'"
     return "Te has desconectado"
 
 
+#Ir a infoCursos
+@app.route("/infoCursos",methods=["GET","POST"])
+def info_cursos():
+    
+    #g = Users.query.join(association_table).join(Grupos).filter((association_table.c.users_id == Users.codigo) & (association_table.c.grupos_id == Grupos.codigo)).all()
+    g = association_table.query.all()
+    print(g)
+    usuarios_curso = []
+    for item in g:
+        usuarios_curso.append({"users_id": item.users_id,"grupos_id" : item.grupos_id})
+    return render_template("infocursos.html", g = usuarios_curso)
 
 
-
-
+#----- Ir a infor cursos -----
+@app.route("/irInfo",methods=["GET","POST"])
+def irInfo():
+    if request.method == "POST":
+        return redirect("/infoCursos")
 
 
 

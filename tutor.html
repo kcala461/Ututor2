@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<title>Ututor</title>
+<link rel="shortcut icon" type="image/x-icon" href="\flask_test\templates\base\flask_test\templates\favicon.ico"/>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #eeafaf;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+.w3-bar,h1,button {font-family: "Montserrat", sans-serif}
+.fa-graduation-cap,.fa-people-carry {font-size:200px}
+</style>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-red w3-card w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+    
+    <form method="post" action="{{ url_for('volverInicio') }}">
+        <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Inicio</button>   
+    </form>
+
+    <form method="post" action="{{ url_for('volverGrupos') }}">
+        <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Grupos</button>   
+    </form>
+
+    <button class="w3-bar-item w3-button w3-padding-large w3-white">Tutor</button>
+    
+    <form method="post" action="{{ url_for('volverRegistro') }}">
+      <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Registro</button>
+    </form>
+    
+    <form method="post" action="{{ url_for('volverLogin') }}">
+        <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Login</button>    
+    </form>
+
+    
+    <p> Bienvenido! {{ x }}</p>
+  </div>
+
+  <!-- Navbar on small screens -->
+  <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">Grupos </a>
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">Tutor</a>
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">Tutor</a>
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">Login</a>
+    
+  </div>
+</div>
+
+<!-- Header -->
+<header class="w3-container w3-red w3-center" style="padding:25px 25px">
+  <p>_______</p>
+  <p class="w3-xlarge">Tutores</p>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for m in messages%}
+        <li> {{ m }} </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+  {% endwith %}
+ 
+</header>
+
+<!-- First Grid -->
+<div class="w3-row-padding w3-padding-64 w3-container">
+
+  <p></p>
+
+  
+        <table id="grupos w3-center">
+                <tr>
+                  <th>Codigo tutor</th>
+                  <th>Nombre</th>
+                  <th>Carrera</th>
+                  <th>Contacto</th>
+                </tr>
+
+                {%for i in g%}
+                  <tr>
+                    <td>{{i.codigo}}</td>
+                    <td>{{i.username}}</td>
+                    <td>{{i.carrera}}</td>
+                  </tr>
+                {%endfor%}
+                
+        </table>
+</div>
+
+
+
+<!-- Footer -->
+<footer class="w3-container w3-padding-64 w3-center w3-opacity">  
+  <div class="w3-xlarge w3-padding-32">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-snapchat w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    <i class="fa fa-linkedin w3-hover-opacity"></i>
+ </div>
+ <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+</footer>
+
+<script>
+
+  var elements = document.querySelectorAll(".sender");
+  for(var i = 0; i < elements.length ; i++){
+    elements[i].addEventListener("click", function(){
+      console.log($(this).attr('data-value'));
+      $.post("entrarCursos", {'id' : $(this).attr('data-value')});
+    });
+  }
+  //$('.sender').on('click', () => {
+  //  console.log($('.sender').attr('data-value'));
+  //  $.post("entrarCursos", {id : $(this).attr('data-value')});
+  //});
+// Used to toggle the menu on small screens when clicking on the menu button
+function myFunction() {
+  var x = document.getElementById("navDemo");
+  if (x.className.indexOf("w3-show") == -1) {
+    x.className += " w3-show";
+  } else { 
+    x.className = x.className.replace(" w3-show", "");
+  }
+}
+</script>
+
+</body>
+</html>
