@@ -1,0 +1,220 @@
+from flask import Flask, render_template, request, make_response, session,escape,redirect,url_for,flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import  Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship 
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.sql import text
+from flask_marshmallow import Marshmallow
+
+import requests
+import sqlite3
+from flask import jsonify
+import os
+
+dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = dbdir
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
+ma = Marshmallow(app)
+
+
+association_table = Table('association', db.metadata,Column('users_id',Integer,ForeignKey('users.codigo')),Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
+
+
+
+#----- Tablas para la base de datos -----
+class Users(db.Model):
+    __tablename__ = 'users'
+    codigo = db.Column(db.String(9), primary_key = True)
+    username = db.Column(db.String(50),nullable =True)
+    password = db.Column(db.String(80),nullable =True)
+    carerra = db.Column(db.String(80),nullable =True)
+    semestre = db.Column(db.String(80),nullable =True)
+    tutor = db.Column(db.String(2),nullable =True)
+    grupo = relationship("Grupos",secondary=association_table,back_populates="user")
+
+class Grupos(db.Model):
+    __tablename__ = 'grupos'
+    codigo = db.Column(db.Integer, primary_key = True)
+    materia = db.Column(db.String(50),nullable =True)
+    lugar = db.Column(db.String(80),nullable =True)
+    dia = db.Column(db.String(80),nullable =True)
+    tutor = db.Column(db.String(80),nullable =True)
+    user = relationship("Users",secondary=association_table,back_populates="grupo")
+    
+ 
+
+
+class GrupoSchema(ma.Schema):
+    class Meta:
+        # Fields to expose
+        fields = ('codigo', 'materia','lugar','dia','tutor')
+
+user_schema = GrupoSchema()
+users_schema = GrupoSchema(many=True)
+
+#----- Entrar en cursos -----
+@app.route("/entrarCursos",methods=["GET","POST"])
+def entrar_Cursos():
+    if request.method == "GET":
+        Grupos.user = Users
+        db.session.commit()
+        return redirect("/cursos")
+    elif request.method == "POST":
+        print("Entrando por el POST")
+        print(request.form['id'])
+
+       # grupo = Grupos.query.filter_by("codigo":request.form['id'])
+        
+        #grupo.user.append(usuario)
+        #db.session.commit()
+        
+        return '200'
+
+
+#----- Registro del estudiante -----
+@app.route("/signup/estudiante",methods=["GET","POST"])
+def signup():
+    if request.method == "POST":
+        hashed_pw=generate_password_hash(request.form["password"],method="sha256")
+        new_user = Users(codigo=request.form["codigo"] ,username=request.form["username"],password=hashed_pw,carerra=request.form["carerra"],semestre=request.form["semestre"],tutor=request.form["tutor"])
+        db.session.add(new_user)
+        db.session.commit()
+        flash("Te has registrado exitosamente!.")
+        return redirect("/login")
+    return render_template("signup.html")
+
+#----- Logearse -----
+@app.route("/login",methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        user = Users.query.filter_by(codigo=request.form["codigo"]).first()
+        if user and check_password_hash( user.password, request.form["password"]):
+            session["codigo"] = user.codigo
+            session["username"] = user.username
+            session["tutor"] = user.tutor
+            return redirect("/cursos")
+        flash("Tus datos son incorrectos o no te has registrado, intentalo de nuevo.")
+    return render_template("login.html")
+
+#----- Crear un curso -----
+@app.route("/signup/curso",methods=["GET","POST"])
+def signup_curso():
+    if request.method == "POST":
+        if "codigo" in session:
+            if session["tutor"] == "Si":
+                new_curso = Grupos(materia=request.form["materia"],lugar=request.form["lugar"],dia=request.form["dia"],tutor=session["username"])
+                db.session.add(new_curso)
+                db.session.commit()
+                return redirect("/cursos")    
+            else:
+                flash("No eres tutor, por ende no puedes crear grupos de estudio")
+        else:
+            flash("Debes loguearte primero")
+    return render_template("signup_curso.html")
+
+
+
+
+
+#----- Ingresar a pagina de cursos -----
+@app.route("/cursos", methods=['GET','POST'])
+def cursos():
+    g = Grupos.query.all()
+    grupos = []
+    for item in g:
+        grupos.append({"codigo": item.codigo,"lugar" : item.lugar ,"materia": item.materia, "tutor" : item.tutor})
+
+    return render_template('cursos.html', g = grupos)
+
+#----- Mostrar base -----
+@app.route("/mostrarUsers", methods=['POST','GET'])
+def mostrar_Users():
+    if request.method == "GET":
+        x = Grupos.query.all()
+        y = users_schema.dump(x)
+    return jsonify(y.data)
+
+#----- Volver a inicio -----
+@app.route("/volverInicio",methods=["GET","POST"])
+def volverInicio():
+    if request.method == "POST":
+        return redirect("/inicio")
+    return("signup.html")
+
+#----- Volver a grupos -----
+@app.route("/volverGrupos",methods=["GET","POST"])
+def volverGrupos():
+    if request.method == "POST":
+        return redirect("/cursos")
+    return("cursos.html")
+
+#----- Volver a login -----
+@app.route("/volverLogin",methods=["GET","POST"])
+def volverLogin():
+    if request.method == "POST":
+        return redirect("/login")
+    return("login.html")
+
+#----- Volver a registro -----
+@app.route("/volverRegistro",methods=["GET","POST"])
+def volverRegistro():
+    if request.method == "POST":
+        return redirect("/signup/estudiante")
+    return("signup.html")
+
+#----- Inicio ---> Registro estudiantes ------
+@app.route("/inicio",methods=["GET","POST"])
+def inicio():
+    if request.method == "POST":
+        return redirect("/signup/estudiante")
+    return render_template("inicio.html")
+
+#Grupos/Cursos ---> CrearCurso
+@app.route("/irCursos",methods=["GET","POST"])
+def irCursos():
+    if request.method == "POST":
+        return redirect("/signup/curso")
+    return render_template("signup_cursos.html")
+
+#Cerrar seccion
+@app.route("/logout")
+def logout():
+    session["codigo"] = " debes iniciar sección en 'Login'"
+    return "Te has desconectado"
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route("/search")
+def search():
+    nickname = request.args.get("username")
+    return nickname
+
+@app.route("/home")
+def home():
+    if "codigo" in session:
+        return "Tu eres %s" % escape(session["codigo"])
+    return "Debes logearte primero"
+
+
+
+#Debe ser una llave secreta de verdad
+app.secret_key = "12345"
+
+
+
+if __name__=="__main__":
+    db.create_all()
+    app.run(debug=True)

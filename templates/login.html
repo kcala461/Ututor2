@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+Log In
+{% endblock %}
+
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for m in messages%}
+        <li> {{ m }} </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+<p class="w3-jumbo">Logeate!</p>
+
+<form method="post" action="{{ url_for('login') }}">
+    <p> Ingresa tu código <p>
+    <p><input name="codigo" type="text"></p>
+    <p> Ingresa tu contraseña </p>
+    <p><input name="password" type="password"></p>
+
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Entrar</button>
+</form>
+{% endblock %}
+
+
+{% block content2 %}
+<form method="post" action="{{ url_for('volverInicio') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Inicio</button>   
+</form>
+    
+<form method="post" action="{{ url_for('volverGrupos') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Grupos</button>   
+</form>
+
+<form method="post" action="{{ url_for('volverRegistro') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Registro</button>    
+</form>
+
+<button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Login</button>
+
+
+{% endblock %}

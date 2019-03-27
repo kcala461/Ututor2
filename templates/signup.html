@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sign Up
+{% endblock %}
+
+
+{% block content %}
+
+<p class="w3-jumbo">Registrate!</p>
+
+<form method="post" action="{{ url_for('signup') }}">
+    <p> Ingresa tu código <p>
+    <p><input name="codigo" type="text"></p>
+    <p> Ingresa tu nombre completo </p>
+    <p><input name="username" type="text"></p>
+    <p> Ingresa tu contraseña </p>
+    <p><input name="password" type="password"></p>
+    <p> Ingresa tu carerra </p>
+    <p><input name="carerra" type="text"></p>
+    <p> Ingresa tu semestre actual </p>
+    <p><input name="semestre" type="text"></p>
+    <p> ¿Eres tutor? </p>
+    <p><input name="tutor" type="text"></p>
+
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Sing up</button>
+</form>
+{% endblock %}
+
+{% block content2 %}
+<form method="post" action="{{ url_for('volverInicio') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Inicio</button>   
+</form>
+
+<form method="post" action="{{ url_for('volverGrupos') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Grupos</button>   
+</form>
+
+<button class="w3-bar-item w3-button w3-padding-large w3-white">Registro</button>
+
+<form method="post" action="{{ url_for('volverLogin') }}">
+        <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Login</button>    
+</form>
+{% endblock %}

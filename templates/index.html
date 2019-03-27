@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+Index
+{% endblock %}
+
+
+{% block content %}
+<h1>Bienvenido</h1>
+<form method="get" action="{{ url_for('search') }}">
+    <p><input name="nickname" type="text"></p>
+    <input type="submit" value="Search">
+</form>
+
+{% endblock %}
+
+
+

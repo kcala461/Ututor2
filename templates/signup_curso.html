@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sign Up
+{% endblock %}
+
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for m in messages%}
+        <li> {{ m }} </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+<h1>Crea un grupo de estudio!</h1>
+
+<form method="post" action="{{ url_for('signup_curso') }}">
+    
+    <p> Ingrese la materia </p>
+    <p><input name="materia" type="text"></p>
+    <p> Ingrese el lugar </p>
+    <p><input name="lugar" type="text"></p>
+    <p> Ingrese el día </p>
+    <p><input name="dia" type="text"></p>
+
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Agregar curso</button>
+    
+</form>
+
+<form method="post" action="{{ url_for('volverLogin') }}">
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Loguearte</button>   
+</form>
+
+{% endblock %}
