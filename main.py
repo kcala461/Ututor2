@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, make_response, session,escape,redirect,url_for,flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import  Table, Column, Integer, ForeignKey
@@ -20,10 +21,21 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
+#ESTO FUNCIONAAAAA!!!!!
+#association_table = db.Table('association',
+#                          db.Column('users_id',Integer,ForeignKey('users.codigo')),
+#                          db.Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
 
-association_table = db.Table('association_table',
-                          db.Column('users_id',Integer,ForeignKey('users.codigo')),
-                          db.Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
+
+
+class Association(db.Model):
+    __tablename__ = 'association'
+    users_id = db.Column(db.Integer,ForeignKey('users.codigo'),primary_key=True)
+    grupos_id = db.Column(db.Integer, ForeignKey('grupos.codigo'),primary_key=True)
+    extra_data = db.Column(db.String(80))
+    user1 = relationship("Users",back_populates = "grupo")
+    grupo1 = relationship("Grupos", back_populates = "user")
+    
 
 #----- Tablas para la base de datos -----
 class Users(db.Model):
@@ -34,11 +46,17 @@ class Users(db.Model):
     carerra = db.Column(db.String(80),nullable =True)
     semestre = db.Column(db.String(80),nullable =True)
     tutor = db.Column(db.String(2),nullable =True)
-    grupos = db.relationship("Grupos",secondary=association_table ,backref=backref('grupos', lazy="dynamic"),lazy = "dynamic")
+    #Esto funcionaaaaa
+    #grupos = db.relationship("Grupos",secondary=association_table)
+
+
+
+
+    grupo = relationship("Association",back_populates = "user1")
 
     def __str__(self):
         return str("La persona c:" + str(self.codigo) + ", nombre: " + str(self.username) + 
-        ", grupos: " + str(self.grupos))
+        ", grupos: " + str(self.grupo))
 
 class Grupos(db.Model):
     __tablename__ = 'grupos'
@@ -47,13 +65,18 @@ class Grupos(db.Model):
     lugar = db.Column(db.String(80),nullable =True)
     dia = db.Column(db.String(80),nullable =True)
     tutor = db.Column(db.String(80),nullable =True)
-    userss = db.relationship("Users",secondary=association_table)
+    #Esto funcionaaaaa
+    #userss = db.relationship("Users",secondary=association_table)
+
+
+
+    user = relationship("Association",back_populates = "grupo1")
 
     def __str__(self):
         return str("El grupo c:" + str(self.codigo) + ", materia: " + str(self.materia) + 
         ", users: " + str(self.userss))
 
-    
+
 
 #----- Entrar en cursos -----
 @app.route("/entrarCursos",methods=["GET","POST"])
@@ -66,12 +89,23 @@ def entrar_Cursos():
         flash("Te has unido al curso!.")
         print("Entrando por el POST")
         print(request.form['id'])
-        #Guardar en la base de datos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        s = Grupos.query.filter_by(codigo=request.form['id']).first()
-        c = Users.query.filter_by(codigo=session["codigo"]).first()
-        c.grupos.append(s)
-        db.session.add(c)
-        db.session.commit()
+        #ESTO FUNCIONAA, GUARDA EN LA BASE DE DATOS!!
+        #s = Grupos.query.filter_by(codigo=request.form['id']).first()
+        #c = Users.query.filter_by(codigo=session["codigo"]).first()
+        #c.grupos.append(s)
+        #db.session.add(c)
+        #db.session.commit()
+
+        g = Grupos()
+        a = Association(extra_data = "Dios")
+        a.user1 = Users()
+        g.user.append(a)
+
+        for i in g.user:
+            print(i.extra_data)
+            print(i.user1)
+
+        
         return '200'
 
 
@@ -134,7 +168,7 @@ def tutores():
     g = Users.query.all()
     usuarios = []
     for item in g:
-        usuarios.append({"codigo": item.codigo,"username" : item.username ,"carrera": item.carerra})
+        usuarios.append({"codigo": item.codigo,"username" : item.username ,"carrera": item.carerra,"tutor":item.tutor})
     return render_template('tutor.html',g = usuarios)
 
 #----- Volver a inicio -----
@@ -192,13 +226,13 @@ def logout():
 @app.route("/infoCursos",methods=["GET","POST"])
 def info_cursos():
     
-    #g = Users.query.join(association_table).join(Grupos).filter((association_table.c.users_id == Users.codigo) & (association_table.c.grupos_id == Grupos.codigo)).all()
-    g = association_table.query.all()
-    print(g)
-    usuarios_curso = []
-    for item in g:
-        usuarios_curso.append({"users_id": item.users_id,"grupos_id" : item.grupos_id})
-    return render_template("infocursos.html", g = usuarios_curso)
+   #Esto es lo viejo (No funciona)
+    #g = association_table
+    #print(g)
+    #usuarios_curso = []
+
+
+    return render_template("infocursos.html")
 
 
 #----- Ir a infor cursos -----
