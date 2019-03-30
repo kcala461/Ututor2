@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <title>Ututor</title>
+<link rel="shortcut icon" type="image/x-icon" href="\flask_test\templates\base\flask_test\templates\favicon.ico"/>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -86,25 +87,21 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   <p></p>
 
     <table id="grupos w3-center">
-
-
-
         <tr>
             <th>Codigo curso</th>
             <th>Usuarios inscritos</th>
         </tr>
 
 
-        {%for i in g%}
-          <tr>
-                    
-            <td>{{i.users_id}}</td>
-            <td>{{i.grupos_id}}</td>
+        {%for i in h%}
+            <tr>
               
-          </tr>
+              <td>{{i.users_id}}</td>
+              <td>{{i.grupos_id}}</td>
+              
+            </tr>
         {%endfor%}
                 
-
 
     </table>
 </div>

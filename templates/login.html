@@ -37,11 +37,15 @@ Log In
     <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Grupos</button>   
 </form>
 
+<form method="post" action="{{ url_for('verTutores') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Tutor</button>   
+</form>
+
 <form method="post" action="{{ url_for('volverRegistro') }}">
     <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Registro</button>    
 </form>
 
-<button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Login</button>
+<button class="w3-bar-item w3-button w3-padding-large w3-white">Login</button>
 
-
+<p> Bienvenido! {{ x }}</p>
 {% endblock %}

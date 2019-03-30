@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <title>Ututor</title>
-
+<link rel="shortcut icon" type="image/x-icon" href="\flask_test\templates\base\flask_test\templates\favicon.ico"/>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -45,6 +45,10 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     </form>
 
     <button class="w3-bar-item w3-button w3-padding-large w3-white">Grupos</button>
+
+    <form method="post" action="{{ url_for('verTutores') }}">
+      <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Tutor</button>   
+    </form>
     
     <form method="post" action="{{ url_for('volverRegistro') }}">
       <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Registro</button>
@@ -55,12 +59,13 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     </form>
 
     
-    
+    <p> Bienvenido! {{ x }}</p>
   </div>
 
   <!-- Navbar on small screens -->
   <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
     <a href="#" class="w3-bar-item w3-button w3-padding-large">Grupos </a>
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">Tutor</a>
     <a href="#" class="w3-bar-item w3-button w3-padding-large">Tutor</a>
     <a href="#" class="w3-bar-item w3-button w3-padding-large">Login</a>
     
@@ -71,6 +76,15 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 <header class="w3-container w3-red w3-center" style="padding:25px 25px">
   <p>_______</p>
   <p class="w3-xlarge">Grupos disponibles</p>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for m in messages%}
+        <li> {{ m }} </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+  {% endwith %}
  
 </header>
 
@@ -86,7 +100,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   
         <table id="grupos w3-center">
                 <tr>
-                  <th>Codigo</th>
+                  <th>Codigo curso</th>
                   <th>Materia</th>
                   <th>Lugar</th>
                   <th>Tutor</th>
@@ -95,15 +109,17 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 
                 {%for i in g%}
                   <tr>
-                    <td> <button>  {{i.codigo}} </button></td>
+                    <form method="post" action="{{ url_for('irInfo') }}">
+                      <td> <button class = "w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">  {{i.codigo}} </button></td>
+                    </form> 
+                    
                     <td>{{i.materia}}</td>
                     <td>{{i.lugar}}</td>
                     <td>{{i.tutor}}</td>
-                    <td> <button class="sender" data-value="{{i.codigo}}" id="enviar"> Entrar </button></td>
+                    <td> <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white sender" data-value="{{i.codigo}}" id="enviar"> Entrar </button></td>
                   </tr>
                 {%endfor%}
                 
-               
         </table>
 </div>
 
@@ -119,7 +135,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     <i class="fa fa-twitter w3-hover-opacity"></i>
     <i class="fa fa-linkedin w3-hover-opacity"></i>
  </div>
- <p>Powered by XK</a></p>
+ <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
 </footer>
 
 <script>

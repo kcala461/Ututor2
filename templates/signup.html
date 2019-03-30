@@ -20,7 +20,7 @@ Sign Up
     <p><input name="carerra" type="text"></p>
     <p> Ingresa tu semestre actual </p>
     <p><input name="semestre" type="text"></p>
-    <p> ¿Eres tutor? </p>
+    <p> ¿Eres tutor?(Si/No) </p>
     <p><input name="tutor" type="text"></p>
 
     <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Sing up</button>
@@ -35,6 +35,10 @@ Sign Up
 <form method="post" action="{{ url_for('volverGrupos') }}">
     <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Grupos</button>   
 </form>
+
+<form method="post" action="{{ url_for('verTutores') }}">
+    <button class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Tutor</button>   
+  </form>
 
 <button class="w3-bar-item w3-button w3-padding-large w3-white">Registro</button>
 
