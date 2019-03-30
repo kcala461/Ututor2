@@ -102,12 +102,15 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
                 </tr>
 
                 {%for i in g%}
-                    
-                  <tr>
-                    <td>{{i.codigo}}</td>
-                    <td>{{i.username}}</td>
-                    <td>{{i.carrera}}</td>
-                  </tr>
+                  {% if i.tutor == "Si" %}
+                    <tr>
+                      <td>{{i.codigo}}</td>
+                      <td>{{i.username}}</td>
+                      <td>{{i.carrera}}</td>
+                    </tr>
+                  {% endif %}   
+                  
+                  
                 {%endfor%}
                 
         </table>
