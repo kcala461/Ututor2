@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <title>Ututor</title>
-
+<link rel="shortcut icon" type="image/x-icon" href="\flask_test\templates\base\flask_test\templates\favicon.ico"/>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -95,6 +95,10 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Crear</button>   
   </form>
 
+  <form method="post" action="{{ url_for('irInfo') }}">
+    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Ver información de cursos</button>   
+  </form>
+
   <p></p>
 
   
@@ -109,10 +113,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 
                 {%for i in g%}
                   <tr>
-                    <form method="post" action="{{ url_for('irInfo') }}">
-                      <td> <button class = "w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">  {{i.codigo}} </button></td>
-                    </form> 
-                    
+                    <td>{{i.codigo}}</td>
                     <td>{{i.materia}}</td>
                     <td>{{i.lugar}}</td>
                     <td>{{i.tutor}}</td>
@@ -147,6 +148,17 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
       $.post("entrarCursos", {'id' : $(this).attr('data-value')});
     });
   }
+
+
+  var element = document.querySelectorAll(".sender1");
+  for(var i = 0; i < element.length ; i++){
+    element[i].addEventListener("click", function(){
+      console.log($(this).attr('data-value'));
+      $.post("infoCursos", {'xd' : $(this).attr('data-value')});
+    });
+  }
+
+
   //$('.sender').on('click', () => {
   //  console.log($('.sender').attr('data-value'));
   //  $.post("entrarCursos", {id : $(this).attr('data-value')});
