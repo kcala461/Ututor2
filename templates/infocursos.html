@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <title>Ututor</title>
-
+<link rel="shortcut icon" type="image/x-icon" href="\flask_test\templates\base\flask_test\templates\favicon.ico"/>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -92,22 +92,28 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
             <th>Materia</th>
             <th>Día</th>
             <th>Hora</th>
-            <th>Código de los estudiantes inscritos</th>
+            <th>Estudiantes inscritos</th>
+
         </tr>
 
 
         {%for i in h%}
             <tr>
-
+              
               <td>{{i.Codigo}}</td>
               <td>{{i.Materia}}</td>
               <td>{{i.Dia}}</td>
               <td>{{i.Hora}}</td>
-              <td>{{i.User}}</td>
-              
+              <td>
+              {% for x in i.User%}
+                {{x.codigo}} - {{x.username}}
+                <p></p>
+              {% endfor %}
+            </td>
+
             </tr>
         {%endfor%}
-                
+        
 
     </table>
 </div>
@@ -124,7 +130,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     <i class="fa fa-twitter w3-hover-opacity"></i>
     <i class="fa fa-linkedin w3-hover-opacity"></i>
  </div>
- <p>Powered by XK</p>
+ <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
 </footer>
 
 <script>
