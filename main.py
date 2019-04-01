@@ -22,7 +22,8 @@ db = SQLAlchemy(app)
 #Tabla para guardar las dos llaves primarias.
 association_table = db.Table('association_table',
                           db.Column('users_id',Integer,ForeignKey('users.username')),
-                          db.Column('grupos_id',Integer,ForeignKey('grupos.codigo')))
+                          db.Column('grupos_id',Integer,ForeignKey('grupos.codigo'))
+                          )
     
 
 #----- Tabla de estudiantes. -----
@@ -222,19 +223,20 @@ def info_cursos():
 
     #----- OPCION FOTO 2 -----
     x = Grupos.query.join(association_table).join(Users).filter((association_table.c.users_id == Users.username) 
-                                                & (association_table.c.grupos_id == Grupos.codigo)).all()
+                                            & (association_table.c.grupos_id == Grupos.codigo)).all()
 
     usuarios_curso = []
+    xd = []
 
     for i in x:
         usuarios_curso.append({"Codigo":i.codigo,"User":i.userss,"Materia":i.materia,"Dia":i.dia,"Hora":i.hora})
-        print(type(i.userss))
     
+
     for x in usuarios_curso:
         print(x)
 
 
-    return render_template("infocursos.html", h = usuarios_curso)
+    return render_template("infocursos.html", h = usuarios_curso, y = xd)
 
 
 #----- Ir a la información de los grupos (infocursos.html) -----
