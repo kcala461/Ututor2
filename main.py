@@ -5,16 +5,19 @@ from sqlalchemy import  Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import text
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_marshmallow import Marshmallow
-
 import requests
 import sqlite3
 from flask import jsonify
 import os
+engine = "postgres://lpfylnowisgyzp:136351a8b7f436d4935e574080990c5d100d2fee06d38ad3e464cbffcbff0d30@ec2-50-17-231-192.compute-1.amazonaws.com:5432/d9cn6ij6e0fkes"
+db = scoped_session(sessionmaker(bind=engine))
+#dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
 
-dbdir = "sqlite:///" + os.path.abspath(os.getcwd()) + "/database.db"
-
-app = Flask(__name__)
+'''app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = dbdir
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -24,6 +27,7 @@ association_table = db.Table('association_table',
                           db.Column('users_id',Integer,ForeignKey('users.username')),
                           db.Column('grupos_id',Integer,ForeignKey('grupos.codigo'))
                           )
+'''
     
 
 #----- Tabla de estudiantes. -----
